@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qc-db-app
+    restart: unless-stopped
+    ports:
+      - "1002:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - APP_ENV=production
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: qc-db-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: qc_db
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - qc_db_data:/var/lib/mysql
+
+volumes:
+  qc_db_data:
