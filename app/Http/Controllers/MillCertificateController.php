@@ -61,6 +61,12 @@ class MillCertificateController extends Controller
             $ni = $chem->ni ?? 0;
             $mo = $chem->mo ?? 0;
 
+            // 304 detection: starts with A or LA
+            $is304 = preg_match('/^(A|LA)/', $s->heat_no);
+            if ($is304) {
+                $mo = 0;
+            }
+
             // Fe calculation: 100 - sum of others
             $fe = 100 - ($c + $si + $mn + $p + $s_val + $cr + $ni + $mo);
 
@@ -75,7 +81,7 @@ class MillCertificateController extends Controller
                     's'  => number_format($s_val, 4, '.', ''),
                     'cr' => number_format($cr, 4, '.', ''),
                     'ni' => number_format($ni, 4, '.', ''),
-                    'mo' => $mo > 0 ? number_format($mo, 4, '.', '') : '-',
+                    'mo' => ($is304 || $mo > 0) ? number_format($mo, 4, '.', '') : '-',
                     'fe' => number_format($fe, 4, '.', ''),
                 ],
                 'mech' => [
@@ -93,7 +99,7 @@ class MillCertificateController extends Controller
                     number_format($s_val, 4, '.', ''),
                     number_format($cr, 4, '.', ''),
                     number_format($ni, 4, '.', ''),
-                    $mo > 0 ? number_format($mo, 4, '.', '') : '0.0000',
+                    ($is304 || $mo > 0) ? number_format($mo, 4, '.', '') : '0.0000',
                     number_format($fe, 4, '.', ''),
                     $tensile->uts_mpa ?? '0',
                     $tensile->ys_mpa  ?? '0',

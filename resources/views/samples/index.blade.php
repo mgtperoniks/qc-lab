@@ -86,7 +86,6 @@
                     <th>ID</th>
                     <th>Report No / Heat No</th>
                     <th>Grade / Standard</th>
-                    <th>Customer</th>
                     <th>Test Date</th>
                     <th>Status</th>
                     <th class="text-center">Aksi</th>
@@ -122,7 +121,6 @@ $(function() {
             { data: 'id' },
             { data: 'report_no' },
             { data: 'grade' },
-            { data: 'customer' },
             { data: 'test_date' },
             { data: 'status' },
             { data: 'actions', orderable: false, searchable: false, className: 'text-center' }

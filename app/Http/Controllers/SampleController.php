@@ -54,7 +54,7 @@ class SampleController extends Controller
         $filteredRecords = $query->count();
 
         // --- SORTING ---
-        $columns = ['id', 'report_no', 'grade', 'customer', 'test_date', 'status'];
+        $columns = ['id', 'report_no', 'grade', 'test_date', 'status'];
         $orderColumnIndex = $request->order[0]['column'] ?? 0;
         $orderDir = $request->order[0]['dir'] ?? 'desc';
         $orderField = $columns[$orderColumnIndex] ?? 'id';
@@ -117,7 +117,6 @@ class SampleController extends Controller
                                 <p class="text-sm font-medium">'.$s->grade.'</p>
                                 <p class="text-xs text-slate-400">'.$s->standard.'</p>
                             </div>',
-                'customer' => '<span class="text-sm">'.($s->customer ?: '-').'</span>',
                 'test_date' => '<span class="text-sm">'.(optional($s->test_date)->format('d M Y') ?? '-').'</span>',
                 'status' => $statusHtml,
                 'actions' => $actions
