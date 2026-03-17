@@ -11,6 +11,12 @@ services:
       - ./storage:/var/www/html/storage
     environment:
       - APP_ENV=production
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=qc_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=secret
     depends_on:
       - db
 
