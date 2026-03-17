@@ -1,0 +1,12 @@
+node_modules
+vendor
+.git
+.env
+storage
+public/build
+public/storage
+.agent
+Dockerfile
+docker-compose.yml
+README.md
+*.log
