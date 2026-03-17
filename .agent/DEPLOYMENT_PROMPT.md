@@ -24,6 +24,9 @@ LANGKAH-LANGKAH:
    - (Jika ada migration baru) Backup DB dulu:
      sudo docker compose exec db mysqldump -u root -p[PASSWORD] qcdb > /home/peroniks/backups/qcdb_backup_$(date +%Y%m%d_%H%M%S).sql
    - Pull kode: sudo git pull origin main
+   - Build & Restart:
+     sudo docker compose build --no-cache
+     sudo docker compose up -d
    - Clear cache:
      sudo docker compose exec app php artisan config:clear
      sudo docker compose exec app php artisan view:clear
@@ -47,7 +50,7 @@ PERINTAH TERLARANG DI PRODUCTION:
 ```
 DEPLOY AMAN:
 1. Local: git add -A → git commit → git push prod main
-2. Server: git pull → clear cache → migrate (BUKAN migrate:fresh!)
+2. Server: git pull → docker compose build → docker compose up -d → clear cache → migrate (BUKAN migrate:fresh!)
 3. Verify
 
 ⛔ JANGAN: migrate:fresh, migrate:rollback, db:wipe
