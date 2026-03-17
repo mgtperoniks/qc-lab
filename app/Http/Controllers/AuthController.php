@@ -12,7 +12,7 @@ class AuthController extends Controller
         $cred = $r->validate(['email'=>'required|email','password'=>'required']);
         if (Auth::attempt($cred, true)) {
             $r->session()->regenerate();
-            return redirect()->intended('/samples');
+            return redirect()->intended('/dashboard');
         }
         return back()->withErrors(['email'=>'Login gagal'])->onlyInput('email');
     }

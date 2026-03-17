@@ -15,8 +15,121 @@ class SampleController extends Controller
     /** Daftar sample */
     public function index()
     {
-        $samples = Sample::orderByDesc('id')->get();
-        return view('samples.index', compact('samples'));
+        // View utama sekarang kosong, data akan dimuat via AJAX
+        return view('samples.index');
+    }
+
+    /** AJAX data for DataTables */
+    public function data(Request $request)
+    {
+        $query = Sample::query();
+
+        // --- FILTERING ---
+        // 1. Grade
+        if ($request->grade) {
+            $query->where('grade', $request->grade);
+        }
+
+        // 2. Date Range
+        if ($request->from) {
+            $query->whereDate('test_date', '>=', $request->from);
+        }
+        if ($request->to) {
+            $query->whereDate('test_date', '<=', $request->to);
+        }
+
+        // 3. Search (Global)
+        if ($request->search['value']) {
+            $search = $request->search['value'];
+            $query->where(function($q) use ($search) {
+                $q->where('report_no', 'like', "%{$search}%")
+                  ->orWhere('heat_no', 'like', "%{$search}%")
+                  ->orWhere('customer', 'like', "%{$search}%")
+                  ->orWhere('grade', 'like', "%{$search}%")
+                  ->orWhere('standard', 'like', "%{$search}%");
+            });
+        }
+
+        $totalRecords = Sample::count();
+        $filteredRecords = $query->count();
+
+        // --- SORTING ---
+        $columns = ['id', 'report_no', 'grade', 'customer', 'test_date', 'status'];
+        $orderColumnIndex = $request->order[0]['column'] ?? 0;
+        $orderDir = $request->order[0]['dir'] ?? 'desc';
+        $orderField = $columns[$orderColumnIndex] ?? 'id';
+        
+        $query->orderBy($orderField, $orderDir);
+
+        // --- PAGINATION ---
+        $start = $request->start ?? 0;
+        $length = $request->length ?? 25;
+        $samples = $query->skip($start)->take($length)->get();
+
+        // --- FORMATTING ---
+        $data = $samples->map(function($s) {
+            $status = strtoupper($s->status ?? 'DRAFT');
+            
+            // Generate Status Badges (Copied logic from blade for consistency)
+            $statusClasses = match($status) {
+                'APPROVED'  => 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400',
+                'REJECTED'  => 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400',
+                'SUBMITTED' => 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400',
+                default     => 'bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-400',
+            };
+            $dotClasses = match($status) {
+                'APPROVED'  => 'bg-green-600',
+                'REJECTED'  => 'bg-red-600',
+                'SUBMITTED' => 'bg-blue-600',
+                default     => 'bg-slate-400',
+            };
+
+            $statusHtml = "<span class='inline-flex items-center gap-1 rounded-full {$statusClasses} px-2.5 py-0.5 text-xs font-bold'>
+                            <span class='h-1.5 w-1.5 rounded-full {$dotClasses}'></span>
+                            {$status}
+                          </span>";
+
+            // Generate Action Buttons
+            $actions = '<div class="flex items-center justify-center gap-2">';
+            
+            $statusStr = strtoupper($s->status ?? '');
+            if (in_array($statusStr, ['DRAFT', 'REJECTED'])) {
+                $actions .= '<a href="'.route('reports.pdf',$s).'?inline=1" target="_blank" class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 transition-colors" title="Preview"><span class="material-symbols-outlined !text-[18px]">visibility</span></a>';
+                $actions .= '<a href="'.route('samples.edit',$s).'" class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-amber-600 hover:bg-amber-50 transition-colors" title="Edit"><span class="material-symbols-outlined !text-[18px]">edit</span></a>';
+                $actions .= '<form method="post" action="'.route('samples.submit',$s).'" class="m-0">'.csrf_field().'<button class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-primary hover:bg-primary/5 transition-colors" title="Submit"><span class="material-symbols-outlined !text-[18px]">send</span></button></form>';
+                $actions .= '<form method="post" action="'.route('samples.destroy',$s).'" class="m-0" onsubmit="return confirm(\'Pindahkan ke Recycle Bin?\');">'.csrf_field().method_field('DELETE').'<button class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-red-600 hover:bg-red-50 transition-colors" title="Hapus"><span class="material-symbols-outlined !text-[18px]">delete</span></button></form>';
+            }
+
+            if ($statusStr === 'APPROVED') {
+                $actions .= '<a href="'.route('reports.pdf',$s).'?inline=1" target="_blank" class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 transition-colors" title="Preview"><span class="material-symbols-outlined !text-[18px]">visibility</span></a>';
+                $actions .= '<a href="'.route('reports.pdf',$s).'" class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-primary hover:bg-primary/5 transition-colors" title="Download PDF"><span class="material-symbols-outlined !text-[18px]">download_for_offline</span></a>';
+            }
+            
+            $actions .= '</div>';
+
+            return [
+                'id' => $s->id,
+                'report_no' => '<div>
+                                    <p class="text-sm font-semibold text-primary">'.($s->report_no ?? 'DRAFT').'</p>
+                                    <p class="text-xs text-slate-400">Heat: '.($s->heat_no ?? '-').'</p>
+                                 </div>',
+                'grade' => '<div>
+                                <p class="text-sm font-medium">'.$s->grade.'</p>
+                                <p class="text-xs text-slate-400">'.$s->standard.'</p>
+                            </div>',
+                'customer' => '<span class="text-sm">'.($s->customer ?: '-').'</span>',
+                'test_date' => '<span class="text-sm">'.(optional($s->test_date)->format('d M Y') ?? '-').'</span>',
+                'status' => $statusHtml,
+                'actions' => $actions
+            ];
+        });
+
+        return response()->json([
+            'draw' => intval($request->draw),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $data
+        ]);
     }
 
     /** Form input sample baru (Operator/Approver) */
@@ -104,22 +217,9 @@ class SampleController extends Controller
                 'v'  => $data['v']  ?? null,
                 'n'  => $data['n']  ?? null,
             ]);
-
-            TensileTest::create([
-                'sample_id' => $s->id,
-                'ys_mpa'    => $data['ys_mpa']    ?? null,
-                'uts_mpa'   => $data['uts_mpa']   ?? null,
-                'elong_pct' => $data['elong_pct'] ?? null,
-            ]);
-
-            HardnessTest::create([
-                'sample_id' => $s->id,
-                'method'    => 'HB',
-                'avg_value' => $data['hb'] ?? null,
-            ]);
         });
 
-        return redirect()->route('samples.index')->with('ok', 'Draft tersimpan. Klik Submit bila siap approve.');
+        return redirect()->route('samples.index')->with('ok', 'Draft Chemical Testing tersimpan.');
     }
 
     /** Edit DRAFT/REJECTED */
@@ -132,7 +232,7 @@ class SampleController extends Controller
                 ->with('err', 'Hanya DRAFT/REVISI yang bisa diedit.');
         }
 
-        $sample->load(['spectroResult','tensileTest','hardnessTest']);
+        $sample->load(['spectroResult']);
 
         // Opsi dropdown untuk halaman Edit
         $grades = ['CF8', 'CF8M', 'SCS13A', 'SCS14A', '1.4308', '1.4408'];
@@ -175,14 +275,6 @@ class SampleController extends Controller
             'al' => 'nullable|numeric',
             'v'  => 'nullable|numeric',
             'n'  => 'nullable|numeric',
-
-            // Tarik
-            'ys_mpa'    => 'nullable|numeric',
-            'uts_mpa'   => 'nullable|numeric',
-            'elong_pct' => 'nullable|numeric',
-
-            // Kekerasan
-            'hb' => 'nullable|numeric',
         ];
 
         $data = $r->validate($rules);
@@ -215,17 +307,6 @@ class SampleController extends Controller
                 'al' => $data['al'] ?? null,
                 'v'  => $data['v']  ?? null,
                 'n'  => $data['n']  ?? null,
-            ]);
-
-            $sample->tensileTest()->updateOrCreate(['sample_id' => $sample->id], [
-                'ys_mpa'    => $data['ys_mpa']    ?? null,
-                'uts_mpa'   => $data['uts_mpa']   ?? null,
-                'elong_pct' => $data['elong_pct'] ?? null,
-            ]);
-
-            $sample->hardnessTest()->updateOrCreate(['sample_id' => $sample->id], [
-                'method'    => 'HB',
-                'avg_value' => $data['hb'] ?? null,
             ]);
         });
 

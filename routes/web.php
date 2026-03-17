@@ -12,7 +12,7 @@ use App\Http\Controllers\ReportPdfController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', fn() => auth()->check()
-    ? redirect()->route('samples.index')
+    ? redirect()->route('dashboard')
     : redirect()->route('login'));
 
 /*
@@ -22,7 +22,7 @@ Route::get('/', fn() => auth()->check()
 */
 Route::get('/login',  [AuthController::class, 'showLogin'])->name('login')->middleware('guest');
 Route::post('/login', [AuthController::class, 'login'])->middleware('guest');
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +31,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 */
 Route::middleware('auth')->group(function () {
 
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+
     // ===== Samples =====
+    Route::get('/samples/data',          [SampleController::class, 'data'])->name('samples.data');
     Route::get('/samples',               [SampleController::class, 'index'])->name('samples.index');
     Route::get('/samples/new',           [SampleController::class, 'create'])->name('samples.create');
     Route::post('/samples',              [SampleController::class, 'store'])->name('samples.store');
@@ -53,7 +56,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/approvals/{sample}/reject', [WorkflowController::class,'reject'])->name('approvals.reject');
 
     // ===== Reports (preview / download) =====
+    Route::get('/reports/daily',         [\App\Http\Controllers\DailyReportController::class, 'index'])->name('reports.daily');
     Route::get('/reports/{sample}/pdf',  [ReportPdfController::class, 'show'])->name('reports.pdf');
+
+    // ===== Mill Certificate Generator =====
+    Route::get('/mill-certificate',      [\App\Http\Controllers\MillCertificateController::class, 'index'])->name('mill-certificate.index');
+    Route::get('/mill-certificate/generate', [\App\Http\Controllers\MillCertificateController::class, 'generate'])->name('mill-certificate.generate');
+
+    // ===== Mechanical Testing =====
+    Route::get('/mechanical/data',                 [\App\Http\Controllers\MechanicalController::class, 'data'])->name('mechanical.data');
+    Route::get('/mechanical',                 [\App\Http\Controllers\MechanicalController::class, 'index'])->name('mechanical.index');
+    Route::get('/mechanical/{sample}/edit',    [\App\Http\Controllers\MechanicalController::class, 'edit'])->name('mechanical.edit');
+    Route::put('/mechanical/{sample}',         [\App\Http\Controllers\MechanicalController::class, 'update'])->name('mechanical.update');
 
     // ===== Recycle Bin =====
     Route::get('/recycle-bin',                 [SampleController::class,'recycle'])->name('samples.recycle');

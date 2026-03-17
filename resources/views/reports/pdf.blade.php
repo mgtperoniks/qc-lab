@@ -242,34 +242,40 @@ $approvedDate = !empty($sample->approved_at)
       <td class="center {{ $judge($val,$min,$max)==='FAIL'?'fail':'' }}">{{ $statusTxt($val,$min,$max) }}</td>
     </tr>
 
-    {{-- Mekanik --}}
-    @php [$min,$max]=$range('ys_mpa');    $val=$actual($t,'ys_mpa');    $unit='MPa'; @endphp
-    <tr>
-      <td class="center">{{ $no++ }}</td><td>Yield Strength</td><td class="center">{{ $unit }}</td>
-      <td class="right">{{ $fmt($val, 2) }}</td><td class="right">{{ $fmt($min, 2) }}</td><td class="right">{{ $fmt($max, 2) }}</td>
-      <td class="center {{ $judge($val,$min,$max)==='FAIL'?'fail':'' }}">{{ $statusTxt($val,$min,$max) }}</td>
-    </tr>
+    @php
+      $showMech = ($t && ($t->ys_mpa || $t->uts_mpa || $t->elong_pct)) || ($h && $h->avg_value);
+    @endphp
 
-    @php [$min,$max]=$range('uts_mpa');   $val=$actual($t,'uts_mpa');   $unit='MPa'; @endphp
-    <tr>
-      <td class="center">{{ $no++ }}</td><td>Ultimate Tensile Strength</td><td class="center">{{ $unit }}</td>
-      <td class="right">{{ $fmt($val, 2) }}</td><td class="right">{{ $fmt($min, 2) }}</td><td class="right">{{ $fmt($max, 2) }}</td>
-      <td class="center {{ $judge($val,$min,$max)==='FAIL'?'fail':'' }}">{{ $statusTxt($val,$min,$max) }}</td>
-    </tr>
+    @if($showMech)
+        {{-- Mekanik --}}
+        @php [$min,$max]=$range('ys_mpa');    $val=$actual($t,'ys_mpa');    $unit='MPa'; @endphp
+        <tr>
+          <td class="center">{{ $no++ }}</td><td>Yield Strength</td><td class="center">{{ $unit }}</td>
+          <td class="right">{{ $fmt($val, 2) }}</td><td class="right">{{ $fmt($min, 2) }}</td><td class="right">{{ $fmt($max, 2) }}</td>
+          <td class="center {{ $judge($val,$min,$max)==='FAIL'?'fail':'' }}">{{ $statusTxt($val,$min,$max) }}</td>
+        </tr>
 
-    @php [$min,$max]=$range('elong_pct'); $val=$actual($t,'elong_pct'); $unit='%'; @endphp
-    <tr>
-      <td class="center">{{ $no++ }}</td><td>Elongation</td><td class="center">{{ $unit }}</td>
-      <td class="right">{{ $fmt($val, 2) }}</td><td class="right">{{ $fmt($min, 2) }}</td><td class="right">{{ $fmt($max, 2) }}</td>
-      <td class="center {{ $judge($val,$min,$max)==='FAIL'?'fail':'' }}">{{ $statusTxt($val,$min,$max) }}</td>
-    </tr>
+        @php [$min,$max]=$range('uts_mpa');   $val=$actual($t,'uts_mpa');   $unit='MPa'; @endphp
+        <tr>
+          <td class="center">{{ $no++ }}</td><td>Ultimate Tensile Strength</td><td class="center">{{ $unit }}</td>
+          <td class="right">{{ $fmt($val, 2) }}</td><td class="right">{{ $fmt($min, 2) }}</td><td class="right">{{ $fmt($max, 2) }}</td>
+          <td class="center {{ $judge($val,$min,$max)==='FAIL'?'fail':'' }}">{{ $statusTxt($val,$min,$max) }}</td>
+        </tr>
 
-    @php [$min,$max]=$range('hb');        $val=$actual($h,'avg_value'); $unit='HB'; @endphp
-    <tr>
-      <td class="center">{{ $no++ }}</td><td>Brinell Hardness</td><td class="center">{{ $unit }}</td>
-      <td class="right">{{ $fmt($val, 2) }}</td><td class="right">{{ $fmt($min, 2) }}</td><td class="right">{{ $fmt($max, 2) }}</td>
-      <td class="center {{ $judge($val,$min,$max)==='FAIL'?'fail':'' }}">{{ $statusTxt($val,$min,$max) }}</td>
-    </tr>
+        @php [$min,$max]=$range('elong_pct'); $val=$actual($t,'elong_pct'); $unit='%'; @endphp
+        <tr>
+          <td class="center">{{ $no++ }}</td><td>Elongation</td><td class="center">{{ $unit }}</td>
+          <td class="right">{{ $fmt($val, 2) }}</td><td class="right">{{ $fmt($min, 2) }}</td><td class="right">{{ $fmt($max, 2) }}</td>
+          <td class="center {{ $judge($val,$min,$max)==='FAIL'?'fail':'' }}">{{ $statusTxt($val,$min,$max) }}</td>
+        </tr>
+
+        @php [$min,$max]=$range('hb');        $val=$actual($h,'avg_value'); $unit='HB'; @endphp
+        <tr>
+          <td class="center">{{ $no++ }}</td><td>Brinell Hardness</td><td class="center">{{ $unit }}</td>
+          <td class="right">{{ $fmt($val, 2) }}</td><td class="right">{{ $fmt($min, 2) }}</td><td class="right">{{ $fmt($max, 2) }}</td>
+          <td class="center {{ $judge($val,$min,$max)==='FAIL'?'fail':'' }}">{{ $statusTxt($val,$min,$max) }}</td>
+        </tr>
+    @endif
   </tbody>
 </table>
 
