@@ -42,6 +42,105 @@
             -webkit-font-smoothing: antialiased;
         }
         [v-cloak] { display: none; }
+
+        /* ===================================================
+           LEGACY BROWSER FALLBACK (Windows 7 / Chrome < 49)
+           Tailwind v4 uses oklch() colors + CSS variables
+           which are unsupported in old Chrome.
+           This block overrides with plain HEX for old browsers.
+           @supports not (color: oklch(0 0 0)) targets ONLY
+           browsers that don't support oklch.
+           =================================================== */
+        @supports not (color: oklch(0 0 0)) {
+            /* Primary Brand Color */
+            .bg-primary        { background-color: #0f74bd !important; }
+            .text-primary      { color: #0f74bd !important; }
+            .border-primary    { border-color: #0f74bd !important; }
+            .hover\:text-primary:hover { color: #0f74bd !important; }
+            .focus\:ring-primary:focus { outline-color: #0f74bd !important; }
+
+            /* Primary tints */
+            .bg-primary\/5    { background-color: rgba(15,116,189,0.05) !important; }
+            .bg-primary\/10   { background-color: rgba(15,116,189,0.10) !important; }
+            .bg-primary\/20   { background-color: rgba(15,116,189,0.20) !important; }
+            .bg-primary\/90   { background-color: rgba(15,116,189,0.90) !important; }
+            .hover\:bg-primary\/5:hover   { background-color: rgba(15,116,189,0.05) !important; }
+            .hover\:bg-primary\/10:hover  { background-color: rgba(15,116,189,0.10) !important; }
+            .hover\:bg-primary\/90:hover  { background-color: rgba(15,116,189,0.90) !important; }
+            .border-primary\/10 { border-color: rgba(15,116,189,0.10) !important; }
+            .border-primary\/30 { border-color: rgba(15,116,189,0.30) !important; }
+
+            /* Background */
+            .bg-background-light  { background-color: #f6f7f8 !important; }
+            .bg-background-dark   { background-color: #101a22 !important; }
+
+            /* Slate */
+            .bg-slate-50    { background-color: #f8fafc !important; }
+            .bg-slate-100   { background-color: #f1f5f9 !important; }
+            .bg-slate-200   { background-color: #e2e8f0 !important; }
+            .bg-slate-400   { background-color: #94a3b8 !important; }
+            .bg-slate-700   { background-color: #334155 !important; }
+            .bg-slate-800   { background-color: #1e293b !important; }
+            .bg-slate-900   { background-color: #0f172a !important; }
+            .text-slate-400 { color: #94a3b8 !important; }
+            .text-slate-500 { color: #64748b !important; }
+            .text-slate-600 { color: #475569 !important; }
+            .text-slate-700 { color: #334155 !important; }
+            .text-slate-900 { color: #0f172a !important; }
+            .border-slate-100 { border-color: #f1f5f9 !important; }
+            .border-slate-200 { border-color: #e2e8f0 !important; }
+            .hover\:bg-slate-50:hover  { background-color: #f8fafc !important; }
+            .hover\:bg-slate-200:hover { background-color: #e2e8f0 !important; }
+
+            /* Green */
+            .bg-green-50     { background-color: #f0fdf4 !important; }
+            .bg-green-500    { background-color: #22c55e !important; }
+            .bg-green-600    { background-color: #16a34a !important; }
+            .text-green-600  { color: #16a34a !important; }
+            .text-green-700  { color: #15803d !important; }
+            .border-green-200 { border-color: #bbf7d0 !important; }
+            .hover\:bg-green-700:hover { background-color: #15803d !important; }
+
+            /* Red */
+            .bg-red-50       { background-color: #fef2f2 !important; }
+            .bg-red-500      { background-color: #ef4444 !important; }
+            .bg-red-600      { background-color: #dc2626 !important; }
+            .text-red-500    { color: #ef4444 !important; }
+            .text-red-600    { color: #dc2626 !important; }
+            .text-red-700    { color: #b91c1c !important; }
+            .border-red-200  { border-color: #fecaca !important; }
+            .hover\:bg-red-50:hover { background-color: #fef2f2 !important; }
+            .bg-red-500\/20  { background-color: rgba(239,68,68,0.2) !important; }
+
+            /* Amber / Orange */
+            .bg-amber-50     { background-color: #fffbeb !important; }
+            .text-amber-600  { color: #d97706 !important; }
+            .bg-amber-50\/30 { background-color: rgba(255,251,235,0.3) !important; }
+
+            /* Blue */
+            .bg-blue-50      { background-color: #eff6ff !important; }
+            .bg-blue-600     { background-color: #2563eb !important; }
+            .text-blue-500   { color: #3b82f6 !important; }
+            .text-blue-600   { color: #2563eb !important; }
+            .text-blue-700   { color: #1d4ed8 !important; }
+
+            /* Gray */
+            .bg-gray-100     { background-color: #f3f4f6 !important; }
+            .bg-gray-200     { background-color: #e5e7eb !important; }
+            .text-gray-400   { color: #9ca3af !important; }
+            .text-gray-500   { color: #6b7280 !important; }
+            .text-gray-600   { color: #4b5563 !important; }
+            .text-gray-700   { color: #374151 !important; }
+            .text-gray-900   { color: #111827 !important; }
+            .hover\:bg-gray-100:hover { background-color: #f3f4f6 !important; }
+
+            /* White */
+            .bg-white        { background-color: #ffffff !important; }
+            .text-white      { color: #ffffff !important; }
+
+            /* Black */
+            .text-black      { color: #000000 !important; }
+        }
     </style>
     @stack('head')
 </head>
@@ -119,6 +218,10 @@
                     <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('mill-certificate.*') ? 'bg-primary text-white font-medium' : 'text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors' }}" href="{{ route('mill-certificate.index') }}">
                         <span class="material-symbols-outlined">analytics</span>
                         <span>Mill Certificate</span>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('checker.*') ? 'bg-primary text-white font-medium' : 'text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors' }}" href="{{ route('checker.index') }}">
+                        <span class="material-symbols-outlined">task_alt</span>
+                        <span>Heat Numbers Checkers</span>
                     </a>
                 </nav>
                 <div class="px-4 mt-auto">

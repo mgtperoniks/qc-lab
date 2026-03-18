@@ -45,7 +45,13 @@
                         <th rowspan="2" class="px-4 py-3 border-b border-r border-slate-100 dark:border-slate-800 text-center">Heat No.</th>
                         <th colspan="9" class="px-4 py-2 border-b border-r border-slate-100 dark:border-slate-800 text-center">Chemical Composition (%)</th>
                         <th colspan="4" class="px-4 py-2 border-b border-r border-slate-100 dark:border-slate-800 text-center">Mechanical Property</th>
-                        <th rowspan="2" class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 text-center w-[100px]">Action</th>
+                        <th rowspan="2" class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 text-center w-[100px]">
+                            <p class="mb-1 text-[9px]">Action</p>
+                            <button id="btnCopyAll" class="hidden flex items-center justify-center gap-1 w-full py-1 text-[9px] rounded bg-primary text-white hover:bg-primary/90 transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[12px]">content_copy</span>
+                                <span>Copy All</span>
+                            </button>
+                        </th>
                     </tr>
                     <tr class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 text-[9px] font-bold uppercase">
                         <th class="px-2 py-2 border-b border-r border-slate-100 dark:border-slate-800 text-center">C</th>
@@ -80,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const heatsInput = document.getElementById('heatsInput');
     const resultsCard = document.getElementById('resultsCard');
     const resultsBody = document.getElementById('resultsBody');
+    const btnCopyAll = document.getElementById('btnCopyAll');
 
     btnGenerate.addEventListener('click', function() {
         const heats = heatsInput.value.trim();
@@ -93,6 +100,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(json => {
                 renderResults(json.data);
                 resultsCard.classList.remove('hidden');
+                if (json.data.length > 0) btnCopyAll.classList.remove('hidden');
+                else btnCopyAll.classList.add('hidden');
             })
             .catch(err => {
                 alert('Error generating report: ' + err.message);
@@ -170,6 +179,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.classList.remove('pasted');
                 label.textContent = 'Copy';
                 icon.textContent = 'content_copy';
+            }, 2000);
+        });
+    });
+
+    btnCopyAll.addEventListener('click', function() {
+        const copyButtons = resultsBody.querySelectorAll('.copy-btn');
+        const texts = [];
+        copyButtons.forEach(btn => {
+            const t = btn.getAttribute('data-copy');
+            if (t) texts.push(t);
+        });
+
+        if (texts.length === 0) return;
+
+        copyToClipboard(texts.join('\n')).then(() => {
+            const originalHtml = btnCopyAll.innerHTML;
+            btnCopyAll.innerHTML = '<span class="material-symbols-outlined text-[12px]">check</span> Copied!';
+            btnCopyAll.classList.replace('bg-primary', 'bg-green-500');
+            
+            setTimeout(() => {
+                btnCopyAll.innerHTML = originalHtml;
+                btnCopyAll.classList.replace('bg-green-500', 'bg-primary');
             }, 2000);
         });
     });

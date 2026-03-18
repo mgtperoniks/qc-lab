@@ -63,6 +63,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/mill-certificate',      [\App\Http\Controllers\MillCertificateController::class, 'index'])->name('mill-certificate.index');
     Route::get('/mill-certificate/generate', [\App\Http\Controllers\MillCertificateController::class, 'generate'])->name('mill-certificate.generate');
 
+    // ===== Heat Number Checker =====
+    Route::get('/heat-number-checker', [\App\Http\Controllers\HeatNumberCheckerController::class, 'index'])->name('checker.index');
+    Route::post('/heat-number-checker/verify', [\App\Http\Controllers\HeatNumberCheckerController::class, 'verify'])->name('checker.verify');
+
     // ===== Mechanical Testing =====
     Route::get('/mechanical/data',                 [\App\Http\Controllers\MechanicalController::class, 'data'])->name('mechanical.data');
     Route::get('/mechanical',                 [\App\Http\Controllers\MechanicalController::class, 'index'])->name('mechanical.index');
