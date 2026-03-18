@@ -72,7 +72,7 @@
                             <form method="post" action="{{ route('approvals.reject',$s) }}" onsubmit="return confirm('Kembalikan ke operator untuk revisi?');">
                                 @csrf
                                 <button type="submit" class="flex items-center gap-1.5 rounded-lg border border-amber-200 dark:border-amber-900/50 px-3 py-1.5 text-xs font-bold text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all">
-                                    <span class="material-symbols-outlined text-[18px]">revisiting</span>
+                                    <span class="material-symbols-outlined text-[18px]">history_edu</span>
                                     Revisi
                                 </button>
                             </form>
