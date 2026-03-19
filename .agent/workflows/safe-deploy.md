@@ -53,6 +53,13 @@ cd /srv/docker/apps/qc-db
 # Pull kode terbaru
 sudo git pull origin main
 
+# Build & Restart (agar environment sinkron)
+sudo docker compose build --no-cache
+sudo docker compose up -d
+
+# Hubungkan kembali symlink storage (penting untuk stamp/signature)
+sudo docker compose exec app php artisan storage:link
+
 # Clear semua cache
 sudo docker compose exec app php artisan config:clear
 sudo docker compose exec app php artisan view:clear
