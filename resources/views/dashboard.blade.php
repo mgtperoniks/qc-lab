@@ -7,6 +7,7 @@
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white">QC Management Dashboard</h1>
         <p class="text-slate-500 mt-1">Flange & Fitting Production Line • Lab Unit 04</p>
     </div>
+    @role('Operator')
     <div class="flex gap-3">
         <a href="{{ route('samples.create') }}" class="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-primary/90">
             <span class="material-symbols-outlined text-[18px]">add_circle</span>
@@ -17,6 +18,7 @@
             New Mechanical Test
         </button>
     </div>
+    @endrole
 </div>
 
 <!-- Summary Cards -->

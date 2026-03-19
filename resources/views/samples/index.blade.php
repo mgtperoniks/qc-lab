@@ -42,7 +42,7 @@
                 Antrian Persetujuan
             </a>
         @endrole
-        @role('Operator|Approver')
+        @role('Operator')
             <a href="{{ route('samples.create') }}" class="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-primary/90">
                 <span class="material-symbols-outlined text-[18px]">add_circle</span>
                 Input Sample Baru

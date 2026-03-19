@@ -103,6 +103,11 @@ class SampleController extends Controller
             if ($statusStr === 'APPROVED') {
                 $actions .= '<a href="'.route('reports.pdf',$s).'?inline=1" target="_blank" class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 transition-colors" title="Preview"><span class="material-symbols-outlined !text-[18px]">visibility</span></a>';
                 $actions .= '<a href="'.route('reports.pdf',$s).'" class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-primary hover:bg-primary/5 transition-colors" title="Download PDF"><span class="material-symbols-outlined !text-[18px]">download_for_offline</span></a>';
+                
+                // Button Revoke (hanya untuk Approver)
+                if (auth()->user()->hasRole('Approver')) {
+                    $actions .= '<form method="post" action="'.route('samples.revoke',$s).'" class="m-0" onsubmit="return confirm(\'Batalkan persetujuan ini agar bisa diedit ulang?\');">'.csrf_field().'<button class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-amber-600 hover:bg-amber-50 transition-colors" title="Revoke Approval (Undo)"><span class="material-symbols-outlined !text-[18px]">undo</span></button></form>';
+                }
             }
             
             $actions .= '</div>';
@@ -134,7 +139,11 @@ class SampleController extends Controller
     /** Form input sample baru (Operator/Approver) */
     public function create()
     {
-        abort_unless(auth()->user()->hasRole(['Operator', 'Approver']), 403);
+        // Approver (Kabag QC) dilarang membuat data baru langsung, hanya Operator.
+        if (auth()->user()->hasRole('Approver') || auth()->user()->email === 'kabagqc@peroniks.com') {
+            abort(403, 'Approver hanya boleh menyetujui, tidak diperkenankan input data baru.');
+        }
+        abort_unless(auth()->user()->hasRole('Operator'), 403);
 
         // Opsi dropdown
         $grades = ['CF8', 'CF8M', 'SCS13A', 'SCS14A', '1.4308', '1.4408'];

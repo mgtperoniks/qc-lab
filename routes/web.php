@@ -43,6 +43,9 @@ Route::middleware('auth')->group(function () {
 	Route::post('/samples/{sample}/submit', [\App\Http\Controllers\WorkflowController::class, 'submit'])
     ->name('samples.submit');
 
+    Route::post('/samples/{sample}/revoke', [\App\Http\Controllers\WorkflowController::class, 'revoke'])
+    ->name('samples.revoke');
+
 
     Route::get('/samples/{sample}/edit', [SampleController::class, 'edit'])->name('samples.edit');
     Route::put('/samples/{sample}',      [SampleController::class, 'update'])->name('samples.update');

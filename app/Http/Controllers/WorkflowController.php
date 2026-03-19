@@ -130,4 +130,23 @@ class WorkflowController extends Controller
 
         return back()->with('ok', 'Disetujui. PDF tersimpan: '.$dir.'/'.$name);
     }
+
+    // Approver: batalkan status APPROVED -> REJECTED (Revisi) agar bisa diedit ulang
+    public function revoke(Sample $sample)
+    {
+        abort_unless(auth()->user()->hasRole('Approver'), 403);
+
+        if ($sample->status !== 'APPROVED') {
+            return back()->with('err', 'Hanya laporan APPROVED yang bisa dibatalkan (revoke).');
+        }
+
+        DB::transaction(function () use ($sample) {
+            $sample->status      = 'REJECTED';
+            $sample->approved_at = null;
+            $sample->approved_by = null;
+            $sample->save();
+        });
+
+        return back()->with('ok', 'Persetujuan dibatalkan. Status kembali ke REVISI.');
+    }
 }
